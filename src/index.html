@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Varkitekt</title>
+    <script type="module" src="/main.js" defer></script>
+  </head>
+
+  <body>
+    <header class="toolbar">
+      <div class="brand">Varkitekt</div>
+      <div class="toolbar-actions">
+        <div class="saved-menu">
+          <button id="saved-btn" class="btn">Saved <span class="caret">▾</span></button>
+          <div id="saved-panel" class="saved-panel hidden">
+            <div class="saved-header">
+              <span>Saved architectures</span>
+              <span id="current-save-label" class="current-save"></span>
+            </div>
+            <form id="save-form" class="save-form">
+              <input id="save-name" placeholder="Name…" autocomplete="off" />
+              <button type="submit" class="btn btn-primary" id="save-submit">Save current</button>
+            </form>
+            <div id="saved-list" class="saved-list"></div>
+          </div>
+        </div>
+        <button id="clear-all" class="btn btn-danger">Clear</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="source-pane">
+        <div class="pane-header">
+          <div class="pane-header-main">
+            <span class="pane-title">Source</span>
+            <span id="source-folder-name" class="source-folder-name"></span>
+          </div>
+          <div class="pane-actions">
+            <label class="slider-label" title="Skip any folder with this many direct children or more (useful for skipping node_modules, .git, etc.)">
+              <span>Ignore folders ≥</span>
+              <input type="range" id="child-threshold" min="10" max="2000" step="10" />
+              <span id="child-threshold-value" class="slider-value">500</span>
+              <span>children</span>
+            </label>
+            <input id="folder-input" type="file" webkitdirectory multiple hidden />
+            <button id="load-folder-btn" class="btn btn-ghost btn-small">Load folder</button>
+            <button id="source-toggle-all" class="btn btn-ghost btn-small">Expand all</button>
+            <button id="clear-source-btn" class="btn btn-ghost btn-small" title="Clear source">✕</button>
+          </div>
+        </div>
+        <div id="source-root" class="tree-root"></div>
+        <div id="source-empty" class="empty-state show">
+          <p>Load a folder from disk</p>
+          <p class="dim">Drag a folder here, or click <b>Load folder</b>.<br/>Nothing on disk will be modified.</p>
+        </div>
+      </section>
+
+      <section class="tree-pane">
+        <div class="pane-header">
+          <div class="pane-header-main">
+            <span class="pane-title">Structure</span>
+            <span class="hint">Drag to reorder · Double-click to rename</span>
+          </div>
+          <div class="pane-actions">
+            <button id="add-root-folder" class="btn btn-small">+ Folder</button>
+            <button id="add-root-file" class="btn btn-small">+ File</button>
+            <button id="tree-toggle-all" class="btn btn-ghost btn-small">Expand all</button>
+          </div>
+        </div>
+        <div id="tree-root" class="tree-root"></div>
+        <div id="empty-state" class="empty-state">
+          <p>Your architecture is empty.</p>
+          <p class="dim">Click <b>+ Folder</b> or <b>+ File</b> above to start.</p>
+        </div>
+      </section>
+
+      <section class="output-pane">
+        <div class="pane-header">
+          <span class="pane-title">Text Output</span>
+          <div class="format-group">
+            <label class="radio">
+              <input type="radio" name="format" value="ascii" checked />
+              <span>ASCII tree</span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="format" value="indent" />
+              <span>Indent</span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="format" value="slash" />
+              <span>Paths</span>
+            </label>
+          </div>
+        </div>
+        <textarea id="output" readonly spellcheck="false"></textarea>
+        <div class="output-footer">
+          <button id="copy-btn" class="btn btn-primary">Copy to clipboard</button>
+          <span id="copy-status" class="copy-status"></span>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
