@@ -1,19 +1,31 @@
 :root {
-  --bg: #1a1b1e;
-  --bg-elev: #22242a;
-  --bg-elev-2: #2a2d35;
-  --border: #353841;
-  --border-strong: #454a56;
-  --text: #e6e8ec;
-  --text-dim: #9aa0ab;
-  --text-faint: #6b7280;
-  --accent: #5aa7ff;
-  --accent-hover: #7ab6ff;
-  --danger: #e5484d;
-  --folder: #e8b339;
-  --file: #82a5d6;
-  --drop-line: #5aa7ff;
-  --drop-bg: rgba(90, 167, 255, 0.12);
+  /* Base — design system Liquid Metal palette.
+     bg/bg-elev/bg-elev-2 step from the shader's low-gradient up toward
+     indigo, keeping the whole UI anchored in the same color space as the
+     landing page. */
+  --bg: #04020D;            /* --lm-bg-low */
+  --bg-elev: #0A0820;
+  --bg-elev-2: #121540;     /* --lm-bg-high */
+  --border: #1F1848;
+  --border-strong: #2F2870;
+
+  /* Foreground */
+  --text: #FFFFFF;
+  --text-dim: rgba(255, 255, 255, 0.62);
+  --text-faint: rgba(255, 255, 255, 0.34);
+
+  /* Semantic accents — pulled straight from the shader palette. */
+  --accent: #1AC7EB;        /* --lm-teal — primary actions, selection */
+  --accent-hover: #5BDCF7;
+  --accent-ink: #04020D;    /* dark text over accent backgrounds */
+  --danger: #FF61B8;        /* --lm-pink */
+  --folder: #FFD173;        /* --lm-amber */
+  --file: #1AC7EB;          /* teal — base color for un-typed files */
+  --drop-line: #1AC7EB;
+  --drop-bg: rgba(26, 199, 235, 0.14);
+
+  /* Brand title uses the wordmark family. Body stays readable sans-serif. */
+  --font-brand: "Arial Black", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
@@ -55,9 +67,12 @@ body {
 }
 
 .brand {
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.3px;
+  font-family: var(--font-brand);
+  font-weight: 900;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .toolbar-actions {
@@ -78,7 +93,7 @@ body {
 }
 
 .btn:hover {
-  background: #32353e;
+  background: #1B1B4F;
   border-color: var(--border-strong);
 }
 
@@ -110,8 +125,8 @@ body {
 .btn-primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0b1220;
-  font-weight: 600;
+  color: var(--accent-ink);
+  font-weight: 700;
 }
 
 .btn-primary:hover {
@@ -120,13 +135,13 @@ body {
 }
 
 .btn-danger {
-  color: #f0a0a0;
+  color: #ffb6dc;
 }
 
 .btn-danger:hover {
-  background: rgba(229, 72, 77, 0.15);
+  background: rgba(255, 97, 184, 0.14);
   border-color: var(--danger);
-  color: #ffcdcd;
+  color: #ffd9ec;
 }
 
 /* ---------- Layout ---------- */
@@ -289,15 +304,15 @@ body {
 
 /* Nodes that originated from disk (OS drop or source pane) */
 .node-row.from-disk {
-  background: rgba(90, 167, 255, 0.08);
+  background: rgba(26, 199, 235, 0.08);
 }
 
 .node-row.from-disk:hover {
-  background: rgba(90, 167, 255, 0.16);
+  background: rgba(26, 199, 235, 0.16);
 }
 
 .node-row.from-disk.selected {
-  background: rgba(90, 167, 255, 0.22);
+  background: rgba(26, 199, 235, 0.22);
 }
 
 .node-row.from-disk .icon.folder,
@@ -444,8 +459,8 @@ body {
 }
 
 .icon-btn.delete:hover {
-  background: rgba(229, 72, 77, 0.2);
-  color: #ffcdcd;
+  background: rgba(255, 97, 184, 0.2);
+  color: #ffd9ec;
 }
 
 .children {
@@ -464,7 +479,7 @@ body {
   background: var(--drop-line);
   border-radius: 2px;
   margin: -1px 8px;
-  box-shadow: 0 0 0 2px rgba(90, 167, 255, 0.25);
+  box-shadow: 0 0 0 2px rgba(26, 199, 235, 0.25);
   pointer-events: none;
 }
 
@@ -723,12 +738,12 @@ body {
 }
 
 .context-menu-item.danger {
-  color: #f0a0a0;
+  color: #ffb6dc;
 }
 
 .context-menu-item.danger:hover {
-  background: rgba(229, 72, 77, 0.18);
-  color: #ffcdcd;
+  background: rgba(255, 97, 184, 0.18);
+  color: #ffd9ec;
 }
 
 .context-menu-separator {
@@ -881,11 +896,11 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3a3d46;
+  background: #242060;
   border-radius: 5px;
   border: 2px solid var(--bg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a4d58;
+  background: #3A3290;
 }
