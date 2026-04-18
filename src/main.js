@@ -36,6 +36,7 @@ const SOURCE_KEY = "varkitekt:source";
 const SOURCE_NAME_KEY = "varkitekt:source-name";
 const SOURCE_INITIAL_KEY = "varkitekt:source-initial";
 const CHILD_THRESHOLD_KEY = "varkitekt:child-threshold";
+const PANE_WIDTHS_KEY = "varkitekt:pane-widths";
 const DEFAULT_CHILD_THRESHOLD = 500;
 const FORMAT_KEY = "varkitekt:format";
 const SAVED_KEY = "varkitekt:saved";
@@ -47,10 +48,41 @@ let sourceTree = loadPaneFromStorage(SOURCE_KEY);
 let sourceFolderName = localStorage.getItem(SOURCE_NAME_KEY) || "";
 let sourceInitial = loadSourceInitial(); // { files, folders } captured at load time
 let childThreshold = clampChildThreshold(Number(localStorage.getItem(CHILD_THRESHOLD_KEY)) || DEFAULT_CHILD_THRESHOLD);
+let paneWidths = loadPaneWidths();
 
 function clampChildThreshold(n) {
   if (!Number.isFinite(n) || n <= 0) return DEFAULT_CHILD_THRESHOLD;
   return Math.min(2000, Math.max(10, Math.round(n)));
+}
+
+// Pane widths are persisted as { source, output } in px. Clamps enforce sane
+// minimums/maximums so a nasty drag can't leave the app in a broken layout.
+function clampSourceWidth(n) {
+  return Math.max(220, Math.min(720, Math.round(n)));
+}
+function clampOutputWidth(n) {
+  return Math.max(280, Math.min(720, Math.round(n)));
+}
+function loadPaneWidths() {
+  try {
+    const raw = localStorage.getItem(PANE_WIDTHS_KEY);
+    if (!raw) return { source: 320, output: 380 };
+    const p = JSON.parse(raw);
+    return {
+      source: clampSourceWidth(Number(p.source) || 320),
+      output: clampOutputWidth(Number(p.output) || 380),
+    };
+  } catch {
+    return { source: 320, output: 380 };
+  }
+}
+function savePaneWidths() {
+  localStorage.setItem(PANE_WIDTHS_KEY, JSON.stringify(paneWidths));
+}
+function applyPaneWidths() {
+  const root = document.documentElement;
+  root.style.setProperty("--src-w", paneWidths.source + "px");
+  root.style.setProperty("--out-w", paneWidths.output + "px");
 }
 let dragging = null; // { id, fromPane: 'main' | 'source' }
 let selectedId = null;
@@ -2228,6 +2260,11 @@ function buildTreeFromFileList(files) {
 
 // Update the "X moved / Y total" indicator in the source pane header.
 function updateSourceHeader() {
+  // Auto-shrink the source pane when its tree is empty — keeps the main
+  // workspace roomy for users who don't use the disk-import flow.
+  const pane = document.getElementById("source-pane");
+  if (pane) pane.classList.toggle("empty", sourceTree.length === 0);
+
   if (!$sourceFolderName) return;
   const current = countNodes(sourceTree);
   const movedFiles = Math.max(0, sourceInitial.files - current.files);
@@ -2268,5 +2305,57 @@ if (tree.length === 0 && !localStorage.getItem("varkitekt:seeded")) {
   tree.push(root);
 }
 
+applyPaneWidths();
+wireResizers();
 render();
 updateCurrentSaveLabel();
+
+// ---------------- Pane resizers ----------------
+//
+// Each .resizer sits between two panes and drives either --src-w or --out-w.
+// Dragging the source resizer right grows source (delta is positive); dragging
+// the output resizer left grows output (delta is inverted).
+function wireResizers() {
+  document.querySelectorAll(".resizer").forEach((el) => {
+    const which = el.dataset.resize; // "source" | "output"
+    el.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      const startX = e.clientX;
+      const initial = paneWidths[which];
+      el.classList.add("dragging");
+      document.body.classList.add("resizing");
+
+      const onMove = (ev) => {
+        const dx = ev.clientX - startX;
+        const next =
+          which === "source"
+            ? clampSourceWidth(initial + dx)
+            : clampOutputWidth(initial - dx);
+        paneWidths[which] = next;
+        // Directly update the CSS var during drag — skip the 0.2s transition
+        // so the pane follows the cursor 1:1 instead of lagging.
+        document.documentElement.style.setProperty(
+          which === "source" ? "--src-w" : "--out-w",
+          next + "px"
+        );
+      };
+      const onUp = () => {
+        el.classList.remove("dragging");
+        document.body.classList.remove("resizing");
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        savePaneWidths();
+      };
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+
+    // Double-click resets to default width.
+    el.addEventListener("dblclick", () => {
+      paneWidths[which] = which === "source" ? 320 : 380;
+      applyPaneWidths();
+      savePaneWidths();
+    });
+  });
+}

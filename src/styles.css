@@ -144,11 +144,14 @@ body {
   color: #ffd9ec;
 }
 
-/* ---------- Layout ---------- */
+/* ---------- Layout ----------
+ * Flex + CSS-var-driven fixed basis on source/output, the main tree fills the
+ * rest. Dividers between panes are draggable (see main.js #paneInfo+resizer
+ * handlers). Widths persist in localStorage, and the source pane auto-
+ * collapses to a narrow strip when its tree is empty.
+ */
 .layout {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr 1fr;
-  gap: 1px;
+  display: flex;
   flex: 1;
   min-height: 0;
   background: var(--border);
@@ -161,6 +164,69 @@ body {
   flex-direction: column;
   min-height: 0;
   background: var(--bg);
+  min-width: 0;
+}
+
+.source-pane {
+  flex: 0 0 var(--src-w, 320px);
+  transition: flex-basis 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.source-pane.empty {
+  flex-basis: var(--src-empty-w, 220px) !important;
+}
+
+.tree-pane {
+  flex: 1 1 auto;
+  min-width: 280px;
+}
+
+.output-pane {
+  flex: 0 0 var(--out-w, 380px);
+  transition: flex-basis 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  min-width: 260px;
+}
+
+.resizer {
+  flex: 0 0 4px;
+  background: var(--border);
+  cursor: col-resize;
+  position: relative;
+  transition: background 0.12s;
+}
+
+.resizer::before {
+  /* wider invisible hit target so the handle is easy to grab without making
+     the visible divider fat */
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+}
+
+.resizer:hover,
+.resizer.dragging {
+  background: var(--accent);
+}
+
+/* No meaningful resize when source is empty — it's locked to the shrunk
+   width. Keep the divider visible but inert so it doesn't hint otherwise. */
+.source-pane.empty + .resizer[data-resize="source"] {
+  pointer-events: none;
+}
+.source-pane.empty + .resizer[data-resize="source"]:hover {
+  background: var(--border);
+}
+
+body.resizing {
+  cursor: col-resize;
+  -webkit-user-select: none;
+  user-select: none;
+}
+body.resizing * {
+  cursor: col-resize !important;
 }
 
 .pane-header-main {
@@ -182,6 +248,21 @@ body {
 .pane-actions {
   display: flex;
   gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Empty source: hide the threshold slider (no use until a folder loads)
+   and the toggle-all button (already disabled when there's nothing to toggle).
+   This keeps the compact header readable at 220px. */
+.source-pane.empty .slider-label,
+.source-pane.empty #source-toggle-all {
+  display: none;
+}
+
+.source-pane.empty .pane-header {
+  flex-wrap: wrap;
 }
 
 .btn-small {

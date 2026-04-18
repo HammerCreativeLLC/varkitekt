@@ -31,7 +31,7 @@
     </header>
 
     <main class="layout">
-      <section class="source-pane">
+      <section class="source-pane" id="source-pane">
         <div class="pane-header">
           <div class="pane-header-main">
             <span class="pane-title">Source</span>
@@ -57,6 +57,8 @@
         </div>
       </section>
 
+      <div class="resizer" data-resize="source" role="separator" aria-orientation="vertical" title="Drag to resize"></div>
+
       <section class="tree-pane">
         <div class="pane-header">
           <div class="pane-header-main">
@@ -75,6 +77,8 @@
           <p class="dim">Click <b>+ Folder</b> or <b>+ File</b> above to start.</p>
         </div>
       </section>
+
+      <div class="resizer" data-resize="output" role="separator" aria-orientation="vertical" title="Drag to resize"></div>
 
       <section class="output-pane">
         <div class="pane-header">
