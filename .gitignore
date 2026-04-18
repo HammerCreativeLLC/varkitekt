@@ -20,6 +20,9 @@ src-tauri/WixTools*/
 # Desktop shortcut scripts
 make-shortcut.ps1
 
+# Firebase deploy cache (local machine only; .firebaserc and firebase.json stay tracked)
+.firebase/
+
 # OS
 Thumbs.db
 desktop.ini
