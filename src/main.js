@@ -37,6 +37,7 @@ const SOURCE_NAME_KEY = "varkitekt:source-name";
 const SOURCE_INITIAL_KEY = "varkitekt:source-initial";
 const CHILD_THRESHOLD_KEY = "varkitekt:child-threshold";
 const PANE_WIDTHS_KEY = "varkitekt:pane-widths";
+const WRAP_LINES_KEY = "varkitekt:wrap-lines";
 const DEFAULT_CHILD_THRESHOLD = 500;
 const FORMAT_KEY = "varkitekt:format";
 const SAVED_KEY = "varkitekt:saved";
@@ -49,6 +50,7 @@ let sourceFolderName = localStorage.getItem(SOURCE_NAME_KEY) || "";
 let sourceInitial = loadSourceInitial(); // { files, folders } captured at load time
 let childThreshold = clampChildThreshold(Number(localStorage.getItem(CHILD_THRESHOLD_KEY)) || DEFAULT_CHILD_THRESHOLD);
 let paneWidths = loadPaneWidths();
+let wrapLines = localStorage.getItem(WRAP_LINES_KEY) === "true";
 
 function clampChildThreshold(n) {
   if (!Number.isFinite(n) || n <= 0) return DEFAULT_CHILD_THRESHOLD;
@@ -2307,8 +2309,25 @@ if (tree.length === 0 && !localStorage.getItem("varkitekt:seeded")) {
 
 applyPaneWidths();
 wireResizers();
+applyWrapLines();
+wireWrapToggle();
 render();
 updateCurrentSaveLabel();
+
+function applyWrapLines() {
+  document.body.classList.toggle("wrap-lines", wrapLines);
+}
+
+function wireWrapToggle() {
+  const el = document.getElementById("wrap-toggle");
+  if (!el) return;
+  el.checked = wrapLines;
+  el.addEventListener("change", (e) => {
+    wrapLines = e.target.checked;
+    localStorage.setItem(WRAP_LINES_KEY, String(wrapLines));
+    applyWrapLines();
+  });
+}
 
 // ---------------- Pane resizers ----------------
 //

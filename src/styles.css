@@ -78,6 +78,31 @@ body {
 .toolbar-actions {
   display: flex;
   gap: 6px;
+  align-items: center;
+}
+
+.toolbar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  border-radius: 5px;
+  transition: color 0.12s;
+}
+
+.toolbar-toggle:hover {
+  color: var(--text);
+}
+
+.toolbar-toggle input {
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 
 .btn {
@@ -178,7 +203,10 @@ body {
 
 .tree-pane {
   flex: 1 1 auto;
-  min-width: 280px;
+  /* min-width: 0 lets flexbox actually shrink the pane below its content's
+     intrinsic width. Without this, a single long note or filename pins the
+     pane open and blocks the output resizer from moving left. */
+  min-width: 0;
 }
 
 .output-pane {
@@ -421,7 +449,7 @@ body.resizing * {
   color: var(--text-dim);
   font-style: italic;
   white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: anywhere;
   -webkit-user-select: text;
   user-select: text;
 }
@@ -491,6 +519,7 @@ body.resizing * {
 
 .name {
   flex: 1;
+  min-width: 0; /* allow ellipsis / shrink inside flex row */
   font-size: 13px;
   padding: 2px 4px;
   border-radius: 3px;
@@ -507,6 +536,29 @@ body.resizing * {
   outline: 1px solid var(--accent);
   overflow: visible;
   min-width: 40px;
+}
+
+/* ───── "Wrap lines" mode (toolbar toggle) ─────
+   Default behavior is single-line truncate w/ ellipsis. When the user enables
+   Wrap lines, long names and notes wrap to as many lines as they need, and
+   the text output wraps too. Nothing in the app relies on a one-row-per-node
+   height, so row layout gracefully stretches. */
+body.wrap-lines .name {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+body.wrap-lines .node-row {
+  align-items: flex-start;
+}
+
+body.wrap-lines #output {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .node-actions {
